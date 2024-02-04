@@ -85,6 +85,20 @@ const locations = [
     text: "You are fighting a monster."
   },
 
+  {
+    name: "kill monster",
+    "button text": ["Go to town square", "Go to town square", "Go to town square"],
+    "button functions": [goTown, goTown, goTown],
+    text: 'The monster screams "Arg!" as it dies. You gain experience points and find gold.'
+  },
+
+  {
+    name: "lose",
+    "button text": ["REPLAY?", "REPLAY?", "REPLAY?"],
+    "button functions": [restart, restart, restart],
+    text: "You die. ☠️"
+  }
+
 
 ];
 
@@ -178,6 +192,7 @@ function sellWeapon () {
 }
 
 function update(location) {
+  monsterStats.style.display = "none";
   button1.innerText = location["button text"][0];
   button2.innerText = location["button text"][1];
   button3.innerText = location["button text"][2];
@@ -202,8 +217,6 @@ function goCave() {
 change the visibility of an element you'll use the following:
 (insert element).style.display = '(insert display type)';
 */
-
-
 function goFight() {
   update(locations[3]);
   monsterHealth = monsters[fighting].health;
@@ -212,14 +225,44 @@ function goFight() {
   monsterHealthText.innerText = monsterHealth;
 }
 
+/*Math.random() generates a random number from 0(inclusive) to 1(exclusive). And
+Math.floor() rounds a given number down to the nearest integer
+*/
 function attack() {
   text.innerText =  'The ' + monsters[fighting].name + ' attacks.';
   text.innerText += " You attack it with your " + weapons[currentWeapon].name + ".";
   health -= monsters[fighting].level;
+  monsterHealth -= weapons[currentWeapon].power + Math.floor(Math.random() * xp) + 1;
+  healthText.innerText = health;
+  monsterHealthText.innerText = monsterHealth;
+  if(health <= 0){
+    function lose() {
+      
+    }
+  } else if (monsterHealth <= 0) {
+    defeatMonster();
+    if(fighting === 2) {
+      winGame();
+    } else {
+      defeatMonster()
+    }
+  }
+}
+
+function defeatMonster() {
+  update(locations[4]);
+  gold += Math.floor(monsters[fighting].level * 6.7);
+  xp += monsters[fighting].level;
+  goldText.innerText = gold;
+  xpText.innerText = xp;
+}
+
+function lose() {
+  update(locations[5]);
 }
 
 function dodge() {
-
+  text.innerText = "You dodge the attack from the " + monsters[fighting].name + ".";
 }
 
 
@@ -236,6 +279,18 @@ function fightSlime() {
 function fightBeast() {
   fighting = 1;
   goFight();
+}
+
+function restart(){
+  xp = 0;
+  health = 100;
+  gold = 50;
+  currentWeapon = 0;
+  let inventory = ["stick"];
+  goldText.innerText = gold;
+  healthText.innerText = health;
+  xpText.innerText = xp;
+  goTown()
 }
 
 // initalize buttons
